@@ -1,0 +1,5 @@
+{
+	/* cmd arahkan pada directory javacompiler.exe */
+	"cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javacompiler"],
+	"working_dir": "${file_path}",
+}
