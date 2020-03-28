@@ -17,6 +17,13 @@ optimation class and package
         "cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javac_src"],
 	      "working_dir": "${file_path}",
 
+- create folder root project in sublimeText
+- create child folder src -> 'default sources directory'
+
+# Main
+- default MainActivity is Main.java | ex: com.test.Main
+- or you can set costum MainActivity in <b>setting.jc</b> file
+
 # recomended
 - install package javaIME via package controll to autocomplate
 - enjoy code
