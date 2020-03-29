@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <exception>
 #include <dirent.h>
 #include <sstream>
 
@@ -271,25 +272,36 @@ void compileProject() {
 		print("Run Compiling..");
 		ostringstream __setcmd_javac;
 
-		__setcmd_javac << "javac @"<< getSourcePath() <<"\\build.jc -d " << getSourcePath() << "\\bin";
-		string cmdjavac = __setcmd_javac.str();
-		system(cmdjavac.c_str());
+		try {
+			__setcmd_javac << "javac @"<< getSourcePath() <<"\\build.jc -d " << getSourcePath() << "\\bin";
+			string cmdjavac = __setcmd_javac.str();
 
-		cout << "package: ";
-		print(package);
+			if ( system(cmdjavac.c_str()) != 0 ) {
+				throw "\n> Exceptions Build Filed!";
+			}
+		}
+		catch (const char* str ) {
+			print(str);
+			rollCouner = false;
+		}
+		
+		if ( rollCouner != false ) {
+			cout << "package: ";
+			print(package);
 
-		string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
-		ostringstream fileCommand;
-		fileCommand << "java -classpath " << getSourcePath() << "\\bin "<< package << "." << setMain;
-		string fileExec = fileCommand.str();
-		const char *command = fileExec.c_str();
-			
-		print("Running Main Class..");
-		print(">>>\n");
+			string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
+			ostringstream fileCommand;
+			fileCommand << "java -classpath " << getSourcePath() << "\\bin "<< package << "." << setMain;
+			string fileExec = fileCommand.str();
+			const char *command = fileExec.c_str();
+				
+			print("Running Main Class..");
+			print(">>>\n");
 
-		system(command);
+			system(command);
 
-		print("\n");	
+			print("\n");	
+		}
 	}
 }
 
@@ -327,14 +339,16 @@ void createManifest(string &pkg, string &setMain) {
 
 bool checkingMF() {
 	fstream fileMF;
+	bool ans;
  
 	ostringstream __readMF;
 	__readMF << mainSource << "\\MANIFEST.MF";
 	string readMF = __readMF.str(); 
 
 	fileMF.open(readMF.c_str(), ios::in);
-	return (fileMF.good()) ? true : false; 
+	ans = (fileMF.good()) ? true : false; 
 	fileMF.close();
+	return ans;
 }
 
 /* 
@@ -386,7 +400,17 @@ int main(int argc, char const *argv[]) {
 			compileProject();	
 		}
 		else if ( args == "jar" ) {
-			exportToJar();
+			ostringstream __binDir;
+			__binDir << mainSource << "\\bin";
+			string binDir = __binDir.str();
+
+			DIR* checkBin = opendir(binDir.c_str());
+			if ( checkBin ) {
+				exportToJar();
+			}
+			else {
+				print("\n> ERROR! bin is not found!");
+			}
 		}
 	}
 
