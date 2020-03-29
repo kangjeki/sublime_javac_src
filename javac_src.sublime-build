@@ -1,5 +1,11 @@
 {
-	/* cmd arahkan pada directory javacompiler.exe */
-	"cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javacompiler"],
+	"cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javac_src", "compile"],
 	"working_dir": "${file_path}",
+	"variants": [
+		{
+			"name": "Export JAR",
+			"cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javac_src", "jar"],
+			"working_dir": "${file_path}\\..\\"
+		}
+	]	
 }

@@ -13,6 +13,7 @@ DIR* dir;
 
 string mainSource;
 string mainJavaClass;
+string packageName;
 
 bool rollCouner = true;
 
@@ -88,7 +89,10 @@ string readSetting() {
 			settingFile << defConf << '"' << '"' << "\n";
 
 			string mainConf = "ActivityMain=";
-			settingFile << mainConf << '"' << "Main" << '"'; 
+			settingFile << mainConf << '"' << "Main" << '"' << "\n";
+
+			string mapDirConf = "MapDir=";
+			settingFile << mapDirConf << '"' << mainSource << '"'; 
 		}
 		else {
 			string buffer;
@@ -168,14 +172,11 @@ string getSourcePath() {
 		else {
 			if ( __readSrc(rec_path.c_str()) ) {
 				// system("dir");
-				// pull = rec_path;
-				// string __spliter = src_root.str();
 				pull = rec_path.substr(0,rec_path.length() - 4);
 				break;
 			}
 			else {
 				pathSRC += ".\\.";
-				// print(rec_path);
 			}	
 		}
 	}
@@ -184,86 +185,89 @@ string getSourcePath() {
 }
 
 
-/**
- * Main method
- * -----------------------------------------------------------------------------
- */
-int main(int argc, char const *argv[]) {
-	
-	if ( getSourcePath().length() == 0 ) {
-		print("--------------------- ERROR! ---------------------");
-		print("> Source Path Not Found!");
-		rollCouner = false;
+/* 
+ * membuat child directory
+ * --------------------------------------------------------------------
+*/
+void __createChPath(const char* path) {
+	ostringstream __pathCh, __pathChMake;
+	//print(getSourcePath());
 
-		return 0;
+	__pathCh << getSourcePath() << "\\" << path;
+	__pathChMake << "mkdir " << getSourcePath() << "\\" << path;
+
+	string createCh = __pathCh.str();
+	string createMakeCh = __pathChMake.str();
+
+	classBin = opendir(createCh.c_str());
+	if (! classBin) {
+		system(createMakeCh.c_str());
+	}
+}
+
+
+/* 
+ * read package
+ * --------------------------------------------------------------------
+*/
+string readPackageProject() {
+	/* membaca file build.jc */
+	fstream buildFile;
+	ostringstream __readerBuildFile;
+	__readerBuildFile << getSourcePath() << "\\build.jc";
+	string readerBuildFile = __readerBuildFile.str();
+
+	buildFile.open(readerBuildFile.c_str(), ios::in);
+
+	string buffer, package;
+	string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
+	string _mainFile;
+
+	while (true) {
+		if ( ! buildFile.eof() ) {
+			//buildFile >> buffer;
+			getline(buildFile, buffer);
+			string reBuffer = sorting(buffer);
+
+			if ( reBuffer.length() != 0 ) {
+				 _mainFile = reBuffer.substr( reBuffer.length() - (setMain.length() + 5), reBuffer.length());
+
+				if ( _mainFile.substr(0, setMain.length()) == setMain ) {
+					package = getPackageName(reBuffer);
+					packageName = package;
+					break;
+				}	
+			}
+		}
+		else {
+			break;
+		}
+	}
+	buildFile.close();
+	return package;
+}
+
+
+/* 
+ * compile *.java file to class
+ * --------------------------------------------------------------------
+*/
+void compileProject() {
+	/* membaca path java file > build.jc */
+	print("--------------------- Membaca File ---------------------");
+	ostringstream pathSrc;
+	pathSrc << "dir /s /B " << getSourcePath() << "\\src\\*.java > " << getSourcePath() << "\\build.jc";
+
+	string execCreateBuildpull = pathSrc.str();
+	const char *commandCreateBuildpull = execCreateBuildpull.c_str();
+	system(commandCreateBuildpull);
+
+	string package = readPackageProject();
+
+	if ( rollCouner == false ) {
+		print("> Error! Structur!");
 	}
 	else {
-		
-		/* membuat directory bin */
-		ostringstream __pathBin, __pathBinMake;
-		//print(getSourcePath());
-
-		__pathBin << getSourcePath() << "\\bin";
-		__pathBinMake << "mkdir " << getSourcePath() << "\\bin";
-
-		string createBin = __pathBin.str();
-		string createMakeBin = __pathBinMake.str();
-
-		classBin = opendir(createBin.c_str());
-		if (! classBin) {
-			system(createMakeBin.c_str());
-		}
-		
-
-		/* membaca path java file > build.jc */
-		print("--------------------- Membaca File ---------------------");
-		ostringstream pathSrc;
-		pathSrc << "dir /s /B " << getSourcePath() << "\\src\\*.java > " << getSourcePath() << "\\build.jc";
-
-		string execCreateBuildpull = pathSrc.str();
-		const char *commandCreateBuildpull = execCreateBuildpull.c_str();
-		system(commandCreateBuildpull);
-
-
-		/* membaca file build.jc */
-		fstream buildFile;
-		ostringstream __readerBuildFile;
-		__readerBuildFile << getSourcePath() << "\\build.jc";
-		string readerBuildFile = __readerBuildFile.str();
-
-		buildFile.open(readerBuildFile.c_str(), ios::in);
-
-		string buffer, package;
-		string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
-		string _mainFile;
-
-		while (true) {
-			if ( ! buildFile.eof() ) {
-				//buildFile >> buffer;
-				getline(buildFile, buffer);
-				string reBuffer = sorting(buffer);
-
-				if ( reBuffer.length() != 0 ) {
-					 _mainFile = reBuffer.substr( reBuffer.length() - (setMain.length() + 5), reBuffer.length());
-
-					if ( _mainFile.substr(0, setMain.length()) == setMain ) {
-						package = getPackageName(reBuffer);
-						break;
-					}	
-				}
-			}
-			else {
-				break;
-			}
-		}
-		buildFile.close();
-
-		/* running compiling */
-		if ( rollCouner == false ) {
-			print("> Error! Structur!");
-			return 0;
-		}
-
 		print("Run Compiling..");
 		ostringstream __setcmd_javac;
 
@@ -274,6 +278,7 @@ int main(int argc, char const *argv[]) {
 		cout << "package: ";
 		print(package);
 
+		string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
 		ostringstream fileCommand;
 		fileCommand << "java -classpath " << getSourcePath() << "\\bin "<< package << "." << setMain;
 		string fileExec = fileCommand.str();
@@ -284,7 +289,105 @@ int main(int argc, char const *argv[]) {
 
 		system(command);
 
-		print("\n");
+		print("\n");	
+	}
+}
+
+
+/* 
+ * sorting package name to path env
+ * --------------------------------------------------------------------
+*/
+string sortingPackageDir(string &str) {
+	string w = "";
+	for ( int i = 0; i < str.length(); i++ ) {
+		if (str[i] != ' ' && str[i] != '"'  && str[i] != ';' && str[i] != '\t') {
+			if ( str[i] == '.' ) {
+				w += "\\";
+			}
+			else {
+				w += str[i];
+			}
+		}
+	}
+	return w;
+}
+
+
+/* 
+ * create Manifest -> utf-8
+ * --------------------------------------------------------------------
+*/
+void createManifest(string &pkg, string &setMain) {
+	ostringstream __pathManifest;
+	__pathManifest << "echo Main-Class: " << pkg << "." << setMain << " >" << mainSource << "\\" << "MANIFEST.MF";
+	string pathManifest = __pathManifest.str();
+	system(pathManifest.c_str());
+}
+
+bool checkingMF() {
+	fstream fileMF;
+ 
+	ostringstream __readMF;
+	__readMF << mainSource << "\\MANIFEST.MF";
+	string readMF = __readMF.str(); 
+
+	fileMF.open(readMF.c_str(), ios::in);
+	return (fileMF.good()) ? true : false; 
+	fileMF.close();
+}
+
+/* 
+ * Export bin file to jar
+ * --------------------------------------------------------------------
+*/
+void exportToJar() {
+	readSetting();
+
+	string setMain = (mainJavaClass.length() == 0) ? "Main" : mainJavaClass;
+	string package = readPackageProject();
+
+	if ( ! checkingMF() ) {
+		createManifest(package, setMain);
+	}
+	
+	ostringstream __mainFile;
+	__mainFile << "jar cfm "<< mainSource <<"\\dist\\" << setMain << ".jar " << mainSource << "\\MANIFEST.MF -C " << mainSource <<"\\bin .";
+
+	string setMain_toJar = __mainFile.str();
+	system(setMain_toJar.c_str());
+	
+	print("> jar export in dist\n");
+	//print(setMain_toJar);
+}
+
+
+/**
+ * Main method
+ * -----------------------------------------------------------------------------
+ */
+int main(int argc, char const *argv[]) {
+
+	if ( getSourcePath().length() == 0 ) {
+		print("--------------------- ERROR! ---------------------");
+		print("> Source Path Not Found!");
+		rollCouner = false;
+
+		return 0;
+	}
+	else {
+		/* create dir child */
+		__createChPath("bin");
+		__createChPath("dist");
+
+		string args = argv[1];
+		if ( args == "compile" ) {
+			/* running compiling */
+			compileProject();	
+		}
+		else if ( args == "jar" ) {
+			exportToJar();
+		}
 	}
 
 	return 0;
