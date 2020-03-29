@@ -7,6 +7,7 @@ optimation class and package
 
     |- ProjectRoot
     |______|- bin
+    |______|- dist
     |______|- src
 
 
@@ -19,6 +20,9 @@ optimation class and package
 
 - create folder root project in sublimeText
 - create child folder src -> 'default sources directory'
+- set build using javac_run
+- press CTRL+B or CTRL+SHIFT+B -> optional [compile] | [export jar] 
+
 
 # Main
 - default MainActivity is Main.java | ex: com.test.Main
