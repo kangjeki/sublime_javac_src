@@ -13,7 +13,7 @@ optimation class and package
 
 # usage
 - add file build system in sublimeText package directory
-- edit cmd path in build system to spesific path where you save javac_src.exe
+- edit cmd path in build system to spesific path where you saved javac_src.exe
   
         "cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javac_src"],
 	      "working_dir": "${file_path}",
