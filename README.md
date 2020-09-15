@@ -11,23 +11,22 @@ optimation class and package
     |______|- src
 
 
-# usage
-- add file build system in sublimeText package directory
-- edit cmd path in build system to spesific path where you saved javac_src.exe
+# penggunaan
+- buat file build system dan tambahkan di sublimeText package directory
+- edit cmd path in build system dan arahkan dimana file javac_src.exe disimmpan
   
         "cmd": ["D:\\JC\\Dev\\Eclipse\\__javarun\\javac_src"],
 	      "working_dir": "${file_path}",
 
-- create folder root project in sublimeText
-- create child folder src -> 'default sources directory'
-- set build using javac_run
-- press CTRL+B or CTRL+SHIFT+B -> optional [compile] | [export jar] 
+- buat folder root project in sublimeText seperti project structur diatas
+- set build system menggunakan javac_run pada menu tools 
+- dari diroctoy root CTRL+B or CTRL+SHIFT+B -> optional [compile] | [export jar] 
 
 
-# Main
-- default MainActivity is Main.java | ex: com.test.Main
-- or you can set costum MainActivity in <b>setting.jc</b> file
+# Main file
+- default MainActivity adalah Main.java | ex: com.test.Main
+- atau kamu dapat merubahnya pada <b>setting.jc</b> file
 
-# recomended
-- install package javaIME via package controll to autocomplate
+# rekomendasi
+- install package javaIME via package controll untuk autocomplate
 - enjoy code
